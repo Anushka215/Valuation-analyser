@@ -1,0 +1,13 @@
+node_modules
+dist
+uploads
+.env
+*.log
+.git
+
+# NOT src/generated - Prisma 7.9.1's client generator has a Windows-vs-Linux
+# bug: on Linux it writes a bad "./internal/class.ts" import (should be
+# .js), which crashes the container at startup. Building on Windows
+# produces the correct output, so we ship that instead of letting the
+# container regenerate it fresh. Re-run `npx prisma generate` on the host
+# after any schema.prisma change, before rebuilding the image.

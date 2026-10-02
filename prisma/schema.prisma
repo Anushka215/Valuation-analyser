@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+model Job {
+  id          String    @id
+  status      JobStatus
+  file_hash   String
+  report_date DateTime
+  created_at  DateTime  @default(now())
+  error       String?
+  result      Result?
+
+  // Looked up whenever a new upload comes in, to avoid reprocessing the
+  // same file (see the idempotency check in server.ts).
+  @@index([file_hash])
+}
+
+model Result {
+  id             String   @id @default(uuid())
+  job_id         String   @unique
+  job            Job      @relation(fields: [job_id], references: [id])
+  verdict        String
+  results_json   Json
+  extracted_json Json
+  created_at     DateTime @default(now())
+}

@@ -1,0 +1,84 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: valuation_analyser
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Runs the migration once and exits. api/worker both wait for this to
+  # finish successfully, so they never race each other to migrate the DB.
+  migrate:
+    build: .
+    command: npx prisma migrate deploy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/valuation_analyser?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: .
+    command: node dist/api/server.js
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/valuation_analyser?schema=public
+      # Ollama runs on the host, not in Docker - see the README.
+      OLLAMA_URL: http://host.docker.internal:11434
+      # Use the real Redis-backed queue, with a separate worker process -
+      # not the in-process fallback (that's only for no-Redis local dev).
+      # "redis" here is the service name below, not localhost - containers
+      # can't reach each other via 127.0.0.1.
+      QUEUE_DRIVER: redis
+      REDIS_HOST: redis
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+
+  worker:
+    build: .
+    command: node dist/queue/runWorker.js
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/valuation_analyser?schema=public
+      OLLAMA_URL: http://host.docker.internal:11434
+      REDIS_HOST: redis
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  postgres_data:
+  uploads:

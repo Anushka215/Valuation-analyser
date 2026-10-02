@@ -1,0 +1,421 @@
+[
+  {
+    "version": "2026-07-31",
+    "effective_from": "2026-07-31",
+    "rules": [
+      {
+        "id": "VACANT_LAND_AREA_RANGE",
+        "description": "Vacant land collateral area must be between 800 and 10,000 sqft.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "vacant_land_area_sqft",
+        "applies_when": { "field": "property_type", "in": ["vacant_land"] },
+        "check": "in_range",
+        "params": { "min": 800, "max": 10000 },
+        "clause_ref": "B"
+      },
+      {
+        "id": "TECHNICAL_REPORT_VALIDITY",
+        "description": "Technical valuation report is valid for 180 days, measured up to the approval date.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "technical_report_date",
+        "check": "max_age_days",
+        "params": { "maxDays": 180, "asOfField": "approval_date" },
+        "clause_ref": "H.I.1"
+      },
+      {
+        "id": "COMMERCIAL_MIN_BUA",
+        "description": "Commercial property must have at least 100 sqft of built-up area (BUA).",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "commercial_bua_sqft",
+        "applies_when": { "field": "property_type", "in": ["commercial"] },
+        "check": "in_range",
+        "params": { "min": 100 },
+        "clause_ref": "H.I.5"
+      },
+      {
+        "id": "CATEGORY_B_LAND_ACQUISITION_PENDING",
+        "description": "Hard block: government land acquisition is initiated, pending, or announced for this property.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "land_acquisition_pending",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.1"
+      },
+      {
+        "id": "CATEGORY_B_OUTSIDE_INDIA",
+        "description": "Hard block: property is located outside India.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "is_outside_india",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.2"
+      },
+      {
+        "id": "CATEGORY_B_BLOCKLIST",
+        "description": "Hard block: property sub-type matches one of the blocked categories (Chawl/Gaothan/Pagdi, stone crusher, old age home/orphanage, Lal Dora, hazardous industry, reserve forest, agricultural farmland/farmhouse).",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "property_sub_type",
+        "check": "in_blocklist_grouped",
+        "params": {
+          "blocklist": [
+            { "value": "chawl_gaothan_pagdi", "clause_ref": "G.3" },
+            { "value": "stone_crusher", "clause_ref": "G.4" },
+            { "value": "old_age_home_orphanage", "clause_ref": "G.5" },
+            { "value": "lal_dora", "clause_ref": "G.6" },
+            { "value": "hazardous_industry", "clause_ref": "G.10" },
+            { "value": "reserve_forest", "clause_ref": "G.13" },
+            { "value": "agricultural_farmland", "clause_ref": "G.16" }
+          ]
+        },
+        "clause_ref": "G.3, G.4, G.5, G.6, G.10, G.13, G.16"
+      },
+      {
+        "id": "CATEGORY_B_TITLE_DEED_PENDING",
+        "description": "Hard block: title deeds are pending with the registrar.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "title_deed_pending",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.7"
+      },
+      {
+        "id": "CATEGORY_B_RELIGIOUS_MONUMENT",
+        "description": "Hard block: property has religious monuments or constructions.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "has_religious_monument",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.8"
+      },
+      {
+        "id": "CATEGORY_B_GRAMA_NATHAM",
+        "description": "Hard block: Grama Natham property, except in Tamil Nadu.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "property_sub_type",
+        "applies_when": { "field": "state", "notIn": ["Tamil Nadu"] },
+        "check": "in_blocklist",
+        "params": { "blocklist": ["grama_natham"] },
+        "clause_ref": "G.9"
+      },
+      {
+        "id": "CATEGORY_B_LAND_LOCKED",
+        "description": "Hard block: property is land-locked.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "is_land_locked",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.11"
+      },
+      {
+        "id": "CATEGORY_B_BUFFER_ZONE",
+        "description": "Hard block: property is on a buffer zone.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "is_on_buffer_zone",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.12"
+      },
+      {
+        "id": "CATEGORY_B_BUILT_ON_AGRI_LAND",
+        "description": "Hard block: industrial/commercial/residential property built on agricultural land.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "built_on_agricultural_land",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.17"
+      },
+      {
+        "id": "CATEGORY_B_AMALGAMATED_OVERLAPPING",
+        "description": "Hard block: amalgamated property (part collateral) where the structure overlaps.",
+        "severity": "HIGH",
+        "effective_from": "2026-07-31",
+        "field": "is_amalgamated_overlapping",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "G.18"
+      },
+      {
+        "id": "CATEGORY_A_UNDER_CONSTRUCTION",
+        "description": "Needs one-level-higher NFA: property is under construction (less than 85% complete).",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "construction_pct",
+        "check": "in_range",
+        "params": { "min": 85 },
+        "clause_ref": "F.1"
+      },
+      {
+        "id": "CATEGORY_A_HUF_OWNERSHIP",
+        "description": "Needs one-level-higher NFA: property belongs to a Hindu Undivided Family (HUF).",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "ownership_type",
+        "check": "in_blocklist",
+        "params": { "blocklist": ["HUF"] },
+        "clause_ref": "F.3"
+      },
+      {
+        "id": "CATEGORY_A_BLOCKLIST",
+        "description": "Needs one-level-higher NFA: property sub-type matches one of the flagged categories (industrial land, guest house, cinema hall, petrol pump, cold storage, hostel, mall office/shop, IT park/SEZ).",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "property_sub_type",
+        "check": "in_blocklist_grouped",
+        "params": {
+          "blocklist": [
+            { "value": "industrial_land", "clause_ref": "F.4" },
+            { "value": "guest_house", "clause_ref": "F.5" },
+            { "value": "cinema_hall", "clause_ref": "F.6" },
+            { "value": "petrol_pump", "clause_ref": "F.7" },
+            { "value": "cold_storage", "clause_ref": "F.10" },
+            { "value": "hostel", "clause_ref": "F.11" },
+            { "value": "mall_office_shop", "clause_ref": "F.12" },
+            { "value": "it_park_sez", "clause_ref": "F.13" }
+          ]
+        },
+        "clause_ref": "F.4, F.5, F.6, F.7, F.10, F.11, F.12, F.13"
+      },
+      {
+        "id": "CATEGORY_A_VACANT_INDUSTRIAL",
+        "description": "Needs one-level-higher NFA: vacant industrial property.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "is_vacant",
+        "applies_when": { "field": "property_sub_type", "in": ["industrial_land"] },
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "F.8"
+      },
+      {
+        "id": "CATEGORY_A_RENTED_INDUSTRIAL",
+        "description": "Needs one-level-higher NFA: rented (leased) industrial property.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "is_leased",
+        "applies_when": { "field": "property_sub_type", "in": ["industrial_land"] },
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "F.9"
+      },
+      {
+        "id": "CATEGORY_A_COMMERCIAL_SHOP_COUNT",
+        "description": "Needs one-level-higher NFA: commercial property with more than 3 rented or leased shops.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "rented_leased_shop_count",
+        "applies_when": { "field": "property_type", "in": ["commercial"] },
+        "check": "in_range",
+        "params": { "max": 3 },
+        "clause_ref": "F.14"
+      },
+      {
+        "id": "CATEGORY_A_MULTI_TENANTED_RESIDENTIAL",
+        "description": "Needs one-level-higher NFA: multi-tenanted residential property with more than 3 tenants.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "tenant_count",
+        "applies_when": { "field": "property_type", "in": ["residential"] },
+        "check": "in_range",
+        "params": { "max": 3 },
+        "clause_ref": "F.15"
+      },
+      {
+        "id": "CATEGORY_A_UNDIVIDED_SHARE_NO_DEMARCATION",
+        "description": "Needs one-level-higher NFA: commercial floor plate held as an undivided share with no demarcation available.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "demarcation_available",
+        "applies_when": { "field": "ownership_share_type", "in": ["undivided_share"] },
+        "check": "not_equals",
+        "params": { "value": false },
+        "clause_ref": "F.17"
+      },
+      {
+        "id": "CATEGORY_A_AMALGAMATED_NON_OVERLAPPING",
+        "description": "Needs one-level-higher NFA: amalgamated property (part collateral) where the structure overlaps.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "is_amalgamated_overlapping",
+        "check": "not_equals",
+        "params": { "value": true },
+        "clause_ref": "F.18"
+      },
+      {
+        "id": "CATEGORY_A_GODOWN",
+        "description": "Needs one-level-higher NFA: godown.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "property_sub_type",
+        "check": "in_blocklist",
+        "params": { "blocklist": ["godown"] },
+        "clause_ref": "F.19"
+      },
+      {
+        "id": "CONSTRUCTION_COMPLETION_GATE",
+        "description": "Construction must be at least 85% complete to be approved by the sanctioning authority.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "construction_pct",
+        "check": "in_range",
+        "params": { "min": 85 },
+        "clause_ref": "F.2"
+      },
+      {
+        "id": "MARRIAGE_GARDEN_MIN_CONSTRUCTED_COVERAGE",
+        "description": "Marriage garden constructed area must cover at least 20% of the land portion.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "constructed_area_sqft",
+        "applies_when": { "field": "property_sub_type", "in": ["marriage_garden"] },
+        "check": "ratio_in_range",
+        "params": { "denominatorField": "land_area_sqft", "min": 20 },
+        "clause_ref": "C.3 / Annexure I.E.7"
+      },
+      {
+        "id": "BUILDING_VALUE_NO_SANCTIONED_PLAN_AGE_GATE",
+        "description": "Property must be more than 5 years old to use building valuation in the absence of a sanctioned plan.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "property_age_years",
+        "check": "in_range",
+        "params": { "min": 5, "minExclusive": true },
+        "clause_ref": "H.9"
+      },
+      {
+        "id": "WETLAND_RESIDENTIAL_MIN_AGE",
+        "description": "Residential property on wet land must be at least 15 years old.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "property_age_years",
+        "applies_when": [
+          { "field": "property_type", "in": ["residential"] },
+          { "field": "site_condition", "in": ["wet_land"] }
+        ],
+        "check": "in_range",
+        "params": { "min": 15 },
+        "clause_ref": "Annexure I.E"
+      },
+      {
+        "id": "WETLAND_RESIDENTIAL_MIN_BUILT_COVERAGE",
+        "description": "Residential property on wet land must be constructed on at least 50% of the land area.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "built_coverage_pct",
+        "applies_when": [
+          { "field": "property_type", "in": ["residential"] },
+          { "field": "site_condition", "in": ["wet_land"] }
+        ],
+        "check": "in_range",
+        "params": { "min": 50 },
+        "clause_ref": "Annexure I.E"
+      },
+      {
+        "id": "MANDI_MIN_REGISTERED_SHOPS",
+        "description": "Mandi property must have at least 50 registered shops.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "registered_shops",
+        "applies_when": { "field": "property_sub_type", "in": ["mandi"] },
+        "check": "in_range",
+        "params": { "min": 50 },
+        "clause_ref": "Annexure I.C"
+      },
+      {
+        "id": "MANDI_MIN_OCCUPANCY_PCT",
+        "description": "Mandi property must have at least 75% occupancy.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "occupancy_pct",
+        "applies_when": { "field": "property_sub_type", "in": ["mandi"] },
+        "check": "in_range",
+        "params": { "min": 75 },
+        "clause_ref": "Annexure I.C"
+      },
+      {
+        "id": "MANDI_MIN_RESIDUAL_LEASE_YEARS",
+        "description": "Mandi property must have at least 10 years of residual lease.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "residual_lease_years",
+        "applies_when": { "field": "property_sub_type", "in": ["mandi"] },
+        "check": "in_range",
+        "params": { "min": 10 },
+        "clause_ref": "Annexure I.C"
+      },
+      {
+        "id": "PANCHAYAT_HOUSE_MIN_ROAD_WIDTH",
+        "description": "Independent house up to G+2: approach road must be at least 10 feet wide.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "approach_road_width_feet",
+        "applies_when": { "field": "residential_building_type", "in": ["independent_house_upto_g2"] },
+        "check": "in_range",
+        "params": { "min": 10 },
+        "clause_ref": "Annexure I.E.1"
+      },
+      {
+        "id": "PANCHAYAT_APARTMENT_MIN_ROAD_WIDTH",
+        "description": "Apartment: approach road must be at least 20 feet wide (interpreted as a minimum, consistent with the independent-house clause).",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "approach_road_width_feet",
+        "applies_when": { "field": "residential_building_type", "in": ["apartment"] },
+        "check": "in_range",
+        "params": { "min": 20 },
+        "clause_ref": "Annexure I.E.2"
+      },
+      {
+        "id": "WAREHOUSE_MARRIAGE_GARDEN_MIN_ROAD_WIDTH",
+        "description": "Warehouse, marriage garden, or convention centre: approach road must be at least 30 feet wide.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "approach_road_width_feet",
+        "applies_when": { "field": "property_sub_type", "in": ["warehouse", "marriage_garden", "convention_centre"] },
+        "check": "in_range",
+        "params": { "min": 30 },
+        "clause_ref": "Annexure I.E.6/E.7"
+      },
+      {
+        "id": "LUDHIANA_MIN_OWNERSHIP_YEARS",
+        "description": "Commercial, industrial, or residential property in Ludhiana must have at least 13 years of ownership.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "ownership_years",
+        "applies_when": [
+          { "field": "city", "in": ["Ludhiana"] },
+          { "field": "property_type", "in": ["commercial", "industrial", "residential"] }
+        ],
+        "check": "in_range",
+        "params": { "min": 13 },
+        "clause_ref": "Annexure I.E (Ludhiana)"
+      },
+      {
+        "id": "CARPET_AREA_MEASURED_VS_DOCUMENTED",
+        "description": "Measured carpet area must match the documented carpet area within tolerance; a mismatch needs human review, not an automatic fail.",
+        "severity": "MEDIUM",
+        "effective_from": "2026-07-31",
+        "field": "carpet_area_measured",
+        "check": "fields_match_within_tolerance",
+        "params": {
+          "compareField": "carpet_area_documented",
+          "tolerance": 3,
+          "mode": "percentage",
+          "onMismatch": "NEEDS_REVIEW"
+        },
+        "clause_ref": "H.I (area verification)"
+      }
+    ]
+  }
+]
